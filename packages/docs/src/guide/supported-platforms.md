@@ -53,3 +53,16 @@ Guide: [Set up Bitbucket OAuth Cousumer](./bitbucket.md)
   - after login, the access token expires in one hour
   - cannot post emoji reactions to comments (heart, like, unlike, etc.)
 - Developer Reference: [Official Docs](https://developer.atlassian.com/bitbucket/api/2/reference)
+
+## Gitea
+
+Guide: []()
+
+### Gitea API V1
+
+- Vssue API package: [@vssue/api-gitea-v1](https://www.npmjs.com/package/@vssue/api-gitea-v1)
+- Features or drawbacks:
+  - 
+- Developer Reference:
+  - [Official Docs](https://docs.gitea.io/en-us)
+  - [Official API Reference](https://try.gitea.io/api/swagger)

@@ -53,3 +53,17 @@
   - 登陆后 Access Token 在 1 小时后过期
   - 不能对评论做出 emoji 响应 （喜欢、点赞、踩 等）
 - 开发者参考： [官方文档](https://developer.atlassian.com/bitbucket/api/2/reference)
+
+## Gitea
+
+指南： []()
+
+### Gitea API V1
+
+- Vssue API 包： [@vssue/api-gitea-v1](https://www.npmjs.com/package/@vssue/api-gitea-v1)
+- 特点 / 缺点：
+  - 
+- 开发者参考：
+  - [官方文档](https://docs.gitea.io/zh-cn)
+  - [官方 API 参考](https://try.gitea.io/api/swagger)
+
