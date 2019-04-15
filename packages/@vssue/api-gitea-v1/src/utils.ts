@@ -21,7 +21,7 @@ export function normalizeIssue (issue: any, baseURL: string, owner: string, repo
 export function normalizeComment (comment: any, baseURL: string): VssueAPI.Comment {
   return {
     id: comment.id,
-    content: comment.body,
+    content: comment.body_html,
     contentRaw: comment.body,
     author: normalizeUser(comment.user, baseURL),
     createdAt: comment.created_at,

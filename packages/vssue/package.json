@@ -41,6 +41,7 @@
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
     "@vssue/api-bitbucket-v2": "^0.8.2",
+    "@vssue/api-gitea-v1": "^0.8.2",
     "@vssue/api-github-v3": "^0.8.2",
     "@vssue/api-github-v4": "^0.8.2",
     "@vssue/api-gitlab-v4": "^0.8.2",

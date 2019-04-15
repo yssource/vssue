@@ -1,6 +1,6 @@
 {
   "name": "@vssue/api-gitea-v1",
-  "version": "0.7.1",
+  "version": "0.8.2",
   "description": "Vssue api for gitea v1",
   "license": "MIT",
   "main": "lib/index.js",
