@@ -56,6 +56,9 @@ export default class GithubV4 implements VssueAPI.Instance {
     state,
     proxy,
   }: VssueAPI.Options) {
+    if (typeof clientSecret === 'undefined' || typeof proxy === 'undefined') {
+      throw new Error('clientSecret and proxy is required for GitHub V3')
+    }
     this.baseURL = baseURL
     this.owner = owner
     this.repo = repo
@@ -351,7 +354,7 @@ query getIssueByTitle(
   }
 
   /**
-   * Get comments of this page according to the issue id or the issue title
+   * Get comments of this page according to the issue id
    *
    * @param options.accessToken - User access token
    * @param options.issueId - The id of issue

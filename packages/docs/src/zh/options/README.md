@@ -88,36 +88,33 @@ Vue.use(Vssue, {
 
   它是由平台分配的 client 标识符。你在创建 OAuth App 之后就可以得到它。
 
-  Vssue 将使用 `clientId` 和 `clientSecret` 来获取用户的 access token。
+  Vssue 将使用 `clientId` 来获取用户的 access token。
 
 - __参考__:
-  - [clientSecret](#clientsecret)
   - [创建 OAuth App](../guide/supported-platforms.md)
-  - [安全](../guide/security.md)
 
 ### clientSecret
 
 - __类型__: `string`
+- __默认值__: `undefined`
 - __详细__:
 
   在 [OAuth2 spec](https://tools.ietf.org/html/rfc6749#section-2.3.1) 中介绍的 `client_secret`。
 
   它是由平台生成的 client 密钥。你在创建 OAuth App 之后就可以得到它。
 
-  Vssue 将使用 `clientId` 和 `clientSecret` 来获取用户的 access token。
+  在和某些平台一起使用时， Vssue 将使用 `clientId` 和 `clientSecret` 来获取用户的 access token。
+
+  ::: tip
+  一些平台（如 Bitbucket 和 GitLab）支持 [Implicit Grant](https://tools.ietf.org/html/rfc6749#section-4.2)，所以在使用这些平台时不需要 `clientSecret`。
+
+  然而，有一些平台（如 GitHub）不支持它，所以在使用这些平台时 `clientSecret` 是必须的。
+  :::
 
 - __参考__:
   - [clientId](#clientid)
+  - [proxy](#proxy)
   - [创建 OAuth App](../guide/supported-platforms.md)
-  - [安全](../guide/security.md)
-
-::: tip
-在不同平台上， __OAuth App__、`clientId` 和 `clientSecret` 的实际名称也不同：
-
-- Github: __OAuth App__, __Client ID__ 和 __Client Secret__
-- Gitlab: __Application__, __Application ID__ 和 __Secret__
-- Bitbucket: __OAuth consumer__, __Key__ 和 __Secret__
-:::
 
 ### baseURL
 
@@ -134,7 +131,7 @@ Vue.use(Vssue, {
   - Bitbucket 是`'https://bitbucket.org'`
 
   ::: warning 注意
-  只有在你要使用 __自行搭建的 Gitlab__ 时才需要设置这个选项。
+  只有在你要使用 __自行搭建的__ 平台时才需要设置这个选项。（比如 __GitLab Community / Enterprise Edition__ 或 __GitHub Enterprise Server__）
   :::
 
 - __参考__:
@@ -193,6 +190,8 @@ Vue.use(Vssue, {
 
   拥有 admin 权限的用户数组。`owner` 始终视为拥有 admin 权限。
 
+  拥有 admin 权限的用户可以删除所有用户的评论，而其他用户只能删除自己的评论。
+
   只有 `admins` 才能在存储评论的 Issue 不存在时自动创建它。
 
   ::: tip
@@ -223,10 +222,12 @@ Vue.use(Vssue, {
   Vssue 使用 [vue-i18n](https://kazupon.github.io/vue-i18n/) 实现国际化，但是并不会影响你的 Vue 应用的其他部分。
   如果你在项目中已经使用了 vue-i18n，也不会对 Vssue 造成影响。
 
-  语言包在 `src/i18n/lang` 目录下。目前我们支持：
+  语言包在 [src/i18n/langs](https://github.com/meteorlxy/vssue/tree/master/packages/vssue/src/i18n/langs) 目录下。目前我们支持：
 
   - `'en'` (`'en-US'`)
   - `'zh'` (`'zh-CN'`)
+  - `'pt'` (`'pt-BR'`)
+  - `'ja'` (`'ja-JP'`)
 
   欢迎贡献代码帮助 Vssue 支持更多语言。
   :::
@@ -237,11 +238,15 @@ Vue.use(Vssue, {
 - __默认值__: `` url => `https://cors-anywhere.herokuapp.com/${url}` ``
 - __详细__:
 
-  平台的 Access Token API 不支持 CORS （详见 [GitHub 的相关 Issue](https://github.com/isaacs/github/issues/330)）。由于 Vssue 是一个纯前端插件，我们必须要通过代理来请求 Access Token。
+  某些平台（如 GitHub）不支持 Implicity Grant，所以我们必须通过请求平台的 API 来获取 Access Token。
+
+  然而，平台的 Access Token API 不支持 CORS （详见 [GitHub 的相关 Issue](https://github.com/isaacs/github/issues/330)）。由于 Vssue 是一个纯前端插件，我们必须要通过代理来请求 Access Token。
 
   默认情况下，我们使用一个开源的 CORS 代理服务 [cors-anywhere](https://github.com/Rob--W/cors-anywhere)。
   
   如果你希望使用自己的代理，就需要设置这个选项。
+  
+  如果你使用的平台不需要设置 `clientSecret`，那么该选项会被忽略。
 
 - __示例__:
 
@@ -249,7 +254,8 @@ Vue.use(Vssue, {
   proxy: url => `https://your.cors.porxy?target=${url}`
   ```
 
-- __参考__: [安全](../guide/security.md)
+- __参考__:
+  - [clientSecret](#clientsecret)
 
 ### issueContent <Badge text="v0.7+"/>
 
@@ -278,6 +284,13 @@ Vue.use(Vssue, {
   如果对应的 Issue 已经存在，Vssue 不会更新 Issue 的内容。
   :::
 
+### autoCreateIssue <Badge text="v0.8.1+"/>
+
+- __类型__: `boolean`
+- __默认值__: `true`
+- __详细__:
+
+  如果 `autoCreateIssue` 设置为 `false`，Vssue 不会为你自动创建 Issue，你必须 __手动创建 Issue__。
 
 ## 组件 Props
 
@@ -301,6 +314,37 @@ Vue.use(Vssue, {
   所以请确保不同页面的 Vssue 使用不同的 `title`。拥有相同 `title` 的 Vssue 会对应到同一个 Issue，也就会有同样的评论。
   :::
 
+  ::: danger GitHub 的问题
+  GitHub API （V3 和 V4）不支持根据标题来筛选 Issue。
+
+  当你使用 `title` 来对应 Issue 的时候，Vssue 会尝试获取对应 `labels` 下的所有 Issue，然后在客户端筛选它们。
+
+  如果当前 `labels` 有过多 Issue （超过50个左右），Vssue 可能无法正确获取对应 Issue，因为 GitHub 不会在一次响应中返回全部 Issue。
+
+  在这种情况下，我们建议你给每个页面使用一个独特的 `labels`。例如：
+
+  ```vue
+  <template>
+    <Vssue
+      :title="vssueTitle"
+      :options="{
+        labels: ['Vssue', vssueTitle]
+      }"
+    />
+  </template>
+
+  <script>
+  export default {
+    data () {
+      return {
+        vssueTitle: '独特的标题',
+      }
+    },
+  }
+  </script>
+  ```
+  :::
+
 - __参考__:
   - [prefix](#prefix)
   - [labels](#labels)
@@ -317,7 +361,7 @@ Vue.use(Vssue, {
   
   如果设置了 `issueId`，下列参数将会被忽略：
 
-  - Options: `labels`, `preifx` 和 `issueContent`
+  - Options: `labels`, `preifx`, `issueContent` 和 `autoCreateIssue`
   - Props: `title`
 
   ::: danger 注意

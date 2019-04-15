@@ -31,12 +31,28 @@ module.exports = [
     format: 'umd',
   },
   {
+    input: 'vssue.bitbucket.ts',
+    output: 'vssue.bitbucket.polyfill.min.js',
+    format: 'umd',
+  },
+  {
+    input: 'vssue.github.ts',
+    output: 'vssue.github.polyfill.min.js',
+    format: 'umd',
+  },
+  {
+    input: 'vssue.gitlab.ts',
+    output: 'vssue.gitlab.polyfill.min.js',
+    format: 'umd',
+  },
+  {
     input: 'main.ts',
     output: 'vssue.js',
     format: 'es',
   },
 ].map(opts => {
   const minify = Boolean(/min\.js$/.test(opts.output))
+  const polyfill = Boolean(/polyfill\.min\.js$/.test(opts.output))
 
   const config = {
     input: pathSrc(opts.input),
@@ -72,15 +88,19 @@ module.exports = [
       }),
       commonjs(),
       json(),
-      typescript(),
+      // https://github.com/rollup/rollup-plugin-typescript/issues/135
+      typescript(Object.assign({},
+        require('../../../tsconfig.base.json').compilerOptions,
+        require('../tsconfig.json').compilerOptions
+      )),
       vue(),
-      babel({
+      ...(opts.format !== 'es' && polyfill ? [babel({
         babelrc: false,
         presets: ['@vue/app'],
         runtimeHelpers: true,
         extensions: ['.js', '.vue'],
         exclude: [/\/core-js\//, /@babel\/runtime/],
-      }),
+      })] : []),
       ...(minify ? [terser({
         output: {
           comments: /^!/,

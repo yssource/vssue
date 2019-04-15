@@ -1,4 +1,5 @@
 import Vue, { PluginObject } from 'vue'
+import 'vue-i18n'
 import { VssueAPI } from './api'
 
 export namespace Vssue {
@@ -17,6 +18,7 @@ export namespace Vssue {
     locale: string
     proxy: string | ((url: string) => string)
     issueContent: ((param: { options: Vssue.Options, url: string }) => string | Promise<string>)
+    autoCreateIssue: boolean
   }
 
   export interface Plugin extends PluginObject<Partial<Vssue.Options>> {
@@ -36,8 +38,15 @@ export namespace Vssue {
     issue: VssueAPI.Issue | null
     comments: VssueAPI.Comments | null
     query: VssueAPI.Query
-    status: Vssue.Status
-    computedStatus: Vssue.ComputedStatus
+    isInitializing: boolean
+    isLoginRequired: boolean
+    isFailed: boolean
+    isLoadingComments: boolean
+    isCreatingComment: boolean
+    isUpdatingComment: boolean
+    readonly isLogined: boolean
+    readonly isAdmin: boolean
+    readonly isPending: boolean
     setOptions (options: Partial<Vssue.Options>): void
     init (): Promise<void>
     initCommentsByIssueTitle(issueTitle: string): Promise<void>
@@ -49,21 +58,6 @@ export namespace Vssue {
     putComment (options: { commentId: number | string, content: string }): Promise<VssueAPI.Comment | void>
     getCommentReactions (options: { commentId: number | string }): Promise<VssueAPI.Reactions | void>
     postCommentReaction (options: { commentId: number | string, reaction: keyof VssueAPI.Reactions }): Promise<boolean | void>
-  }
-
-  export type ComputedStatus = {
-    readonly isLogined: boolean
-    readonly isAdmin: boolean
-    readonly isPending: boolean
-  }
-
-  export type Status = {
-    isInitializing: boolean
-    isLoginRequired: boolean
-    isFailed: boolean
-    isLoadingComments: boolean
-    isCreatingComment: boolean
-    isUpdatingComment: boolean
   }
 }
 

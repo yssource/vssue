@@ -60,7 +60,7 @@ The only difference is that, you should set `platform` rather than the `api` pac
 ::: tip
 If you don't set the `locale` option, Vssue will use Vuepress's `$lang` as the language of current page.
 
-> See [locale](../options/index.md#locale) of Vssue and [$lang](https://vuepress.vuejs.org/guide/global-computed.html#lang) of Vuepress
+> See [locale](../options/README.md#locale) of Vssue and [$lang](https://vuepress.vuejs.org/guide/global-computed.html#lang) of Vuepress
 :::
 
 ### Use Vssue Component
@@ -101,3 +101,19 @@ If you want to override them, just set them in your `palette.styl`:
 
 $vssue-theme-color = red
 ```
+
+## Do not want to use our plugin?
+
+Although Vssue has tried to become SSR-friendly, there might be some issues to use Vssue directly in Vuepress.
+
+So we suggest you to use `@vssue/vuepress-plugin-vssue` in Vuepress, which has already helped you make `<Vssue>` component client-only to avoid those issues.
+
+If you do not want to use the plugin we provided, you may need to wrap `<Vssue>` component into `<ClientOnly>` component to avoid some potential problems, i.e. :
+
+```vue
+<ClientOnly>
+  <Vssue />
+</ClientOnly>
+```
+
+> See [Built-in Components - ClientOnly](https://vuepress.vuejs.org/guide/using-vue.html#clientonly) of Vuepress

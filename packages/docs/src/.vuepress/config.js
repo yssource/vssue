@@ -10,10 +10,15 @@ module.exports = {
       title: 'Vssue',
       description: 'Vue 驱动的、基于 Issue 的评论插件',
     },
+    '/pt-BR/': {
+      lang: 'pt-BR',
+      title: 'Vssue',
+      description: 'Plugin de comentários com Vue, baseado em Issues',
+    },
   },
 
   head: [
-    ['link', { rel: 'icon', href: `/logo.png` }],
+    ['link', { rel: 'icon', href: `/favicon.ico` }],
   ],
 
   markdown: {
@@ -35,6 +40,10 @@ module.exports = {
         lastUpdated: 'Last Updated',
         nav: [
           {
+            text: 'Demo',
+            link: '/demo/',
+          },
+          {
             text: 'Vssue Guide',
             link: '/guide/',
           },
@@ -48,6 +57,7 @@ module.exports = {
           },
         ],
         sidebar: {
+          '/demo/': sidebarDemo('Vssue Demo'),
           '/guide/': sidebarGuide('Vssue Guide', 'Set up OAuth App'),
         },
       },
@@ -57,6 +67,10 @@ module.exports = {
         editLinkText: '在 GitHub 上编辑此页',
         lastUpdated: '上次更新',
         nav: [
+          {
+            text: 'Demo',
+            link: '/zh/demo/',
+          },
           {
             text: 'Vssue 指南',
             link: '/zh/guide/',
@@ -71,7 +85,36 @@ module.exports = {
           },
         ],
         sidebar: {
+          '/zh/demo/': sidebarDemo('Vssue Demo'),
           '/zh/guide/': sidebarGuide('Vssue 指南', '创建 OAuth App'),
+        },
+      },
+      '/pt-BR/': {
+        label: 'Português Brasil',
+        selectText: 'Linguagens',
+        editLinkText: 'Editar esta página no GitHub',
+        lastUpdated: 'Última Atualização',
+        nav: [
+          {
+            text: 'Demo',
+            link: '/pt-BR/demo/',
+          },
+          {
+            text: 'Guia',
+            link: '/pt-BR/guide/',
+          },
+          {
+            text: 'Configuração',
+            link: '/pt-BR/options/',
+          },
+          {
+            text: 'Log de mudanças',
+            link: 'https://github.com/meteorlxy/vssue/blob/master/CHANGELOG.md',
+          },
+        ],
+        sidebar: {
+          '/pt-BR/demo/': sidebarDemo('Vssue Demo'),
+          '/pt-BR/guide/': sidebarGuide('Vssue Guia', 'Configurar OAuth App'),
         },
       },
     },
@@ -84,14 +127,51 @@ module.exports = {
       serviceWorker: true,
       updatePopup: true,
     }],
-    ['@vssue/vuepress-plugin-vssue', {
-      platform: 'github',
-      owner: 'meteorlxy',
-      repo: 'vssue',
-      clientId: 'a1097b7751127c6d1194',
-      clientSecret: '5c95e2f890b6a2b80dbda17656e9b1db9e87a07b',
+    ['@vuepress/google-analytics', {
+      'ga': 'UA-132770851-3',
     }],
+    '@vssue/vuepress-plugin-vssue',
   ],
+
+  chainWebpack: (config, isServer) => {
+    if (isServer === false) {
+      config.optimization.splitChunks({
+        maxInitialRequests: 5,
+        cacheGroups: {
+          2: {
+            test: /[\\/]node_modules[\\/](vue-i18n|vue-class-component|nprogress|@vuepress)[\\/]/,
+            name: 'vendor.2',
+            chunks: 'all',
+          },
+          1: {
+            test: /[\\/]node_modules[\\/](vue|vue-router)[\\/]/,
+            name: 'vendor.1',
+            chunks: 'all',
+          },
+          0: {
+            test: /[\\/]node_modules[\\/]/,
+            priority: -10,
+            name: 'vendor.0',
+            chunks: 'all',
+          },
+        },
+      })
+    }
+  },
+}
+
+function sidebarDemo (title) {
+  return [
+    {
+      title,
+      collapsable: false,
+      children: [
+        'bitbucket',
+        'github',
+        'gitlab',
+      ],
+    },
+  ]
 }
 
 function sidebarGuide (titleGuide, titleOAuthApp) {

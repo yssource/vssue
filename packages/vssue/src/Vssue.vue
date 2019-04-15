@@ -47,7 +47,7 @@
     <TransitionFade>
       <!-- initializing -->
       <VssueStatus
-        v-if="vssue.status.isInitializing"
+        v-if="vssue.isInitializing"
         key="initializing"
         icon-name="loading"
       >
@@ -137,9 +137,9 @@ export default class Vssue extends Vue {
   }
 
   /**
-   * Created hook. Check Options and init Vssue.
+   * beforeMount hook
    */
-  created (): void {
+  beforeMount (): void {
     // set options
     this.vssue.setOptions(this.options)
 
@@ -164,9 +164,9 @@ export default class Vssue extends Vue {
     } catch (e) {
       if (e.response && [401, 403].includes(e.response.status)) {
         // in some cases, require login to load comments
-        this.vssue.status.isLoginRequired = true
+        this.vssue.isLoginRequired = true
       } else {
-        this.vssue.status.isFailed = true
+        this.vssue.isFailed = true
       }
       console.error(e)
     }

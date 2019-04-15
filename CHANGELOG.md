@@ -1,3 +1,86 @@
+## [0.8.2](https://github.com/meteorlxy/vssue/compare/v0.8.1...v0.8.2) (2019-03-29)
+
+
+### Features
+
+* **$vssue:** add language ja-JP ([#23](https://github.com/meteorlxy/vssue/issues/23)) ([4d3c9b9](https://github.com/meteorlxy/vssue/commit/4d3c9b9))
+
+
+
+## [0.8.1](https://github.com/meteorlxy/vssue/compare/v0.8.0...v0.8.1) (2019-03-23)
+
+
+### Bug Fixes
+
+* **$api-bitbucket-v2:** filter empty comments ([17a4da8](https://github.com/meteorlxy/vssue/commit/17a4da8))
+* **$apt-github-v3:** support closed issues ([ea7c1c0](https://github.com/meteorlxy/vssue/commit/ea7c1c0))
+
+
+### Features
+
+* **$vssue:** add auto-create-issue option ([47cd4d3](https://github.com/meteorlxy/vssue/commit/47cd4d3))
+
+
+
+# [0.8.0](https://github.com/meteorlxy/vssue/compare/v0.7.5...v0.8.0) (2019-03-23)
+
+
+### Bug Fixes
+
+* **$utils:** get correct clean url when hash only ([c53fcfb](https://github.com/meteorlxy/vssue/commit/c53fcfb))
+
+
+### Features
+
+* **$api-bitbucket-v2, $api-gitlab-v4:** use implicit grant type (close [#22](https://github.com/meteorlxy/vssue/issues/22)) ([78e6535](https://github.com/meteorlxy/vssue/commit/78e6535))
+
+
+
+## [0.7.5](https://github.com/meteorlxy/vssue/compare/v0.7.4...v0.7.5) (2019-03-06)
+
+
+### Features
+
+* **$vssue:** provide non-polyfill builds ([ccc435f](https://github.com/meteorlxy/vssue/commit/ccc435f))
+
+
+
+## [0.7.4](https://github.com/meteorlxy/vssue/compare/v0.7.3...v0.7.4) (2019-02-27)
+
+
+### Bug Fixes
+
+* **$vuepress-plugin-vssue:** avoid mutating options object ([331f272](https://github.com/meteorlxy/vssue/commit/331f272))
+
+
+### Features
+
+* **$vssue:** add language pt-BR ([#19](https://github.com/meteorlxy/vssue/issues/19)) ([9a1eefa](https://github.com/meteorlxy/vssue/commit/9a1eefa)) (thanks to [@tgmti](https://github.com/tgmti))
+
+
+## [0.7.3](https://github.com/meteorlxy/vssue/compare/v0.7.2...v0.7.3) (2019-02-24)
+
+
+### Bug Fixes
+
+* **$vssue:** import vue-i18n in types file ([208b1ef](https://github.com/meteorlxy/vssue/commit/208b1ef))
+
+
+### Performance Improvements
+
+* **$vssue:** better border when focus on textarea ([0ee3858](https://github.com/meteorlxy/vssue/commit/0ee3858))
+
+
+
+## [0.7.2](https://github.com/meteorlxy/vssue/compare/v0.7.1...v0.7.2) (2019-02-22)
+
+
+### Features
+
+* **$vssue:** allow admins delete comments ([d3ad13f](https://github.com/meteorlxy/vssue/commit/d3ad13f))
+
+
+
 ## [0.7.1](https://github.com/meteorlxy/vssue/compare/v0.7.0...v0.7.1) (2019-02-19)
 
 

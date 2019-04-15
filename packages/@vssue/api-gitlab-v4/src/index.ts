@@ -6,6 +6,7 @@ import axios, {
 } from 'axios'
 
 import {
+  buildQuery,
   buildURL,
   concatURL,
   getCleanURL,
@@ -30,11 +31,9 @@ export default class GitlabV4 implements VssueAPI.Instance {
   baseURL: string
   owner: string
   repo: string
-  labels: string
+  labels: Array<string>
   clientId: string
-  clientSecret: string
   state: string
-  proxy: string | ((url: string) => string)
   $http: AxiosInstance
 
   private _encodedRepo: string
@@ -45,25 +44,21 @@ export default class GitlabV4 implements VssueAPI.Instance {
     repo,
     labels,
     clientId,
-    clientSecret,
     state,
-    proxy,
   }: VssueAPI.Options) {
     this.baseURL = baseURL
     this.owner = owner
     this.repo = repo
-    this.labels = labels.join(',')
+    this.labels = labels
 
     this.clientId = clientId
-    this.clientSecret = clientSecret
     this.state = state
-    this.proxy = proxy
 
     // @see https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
     this._encodedRepo = encodeURIComponent(`${this.owner}/${this.repo}`)
 
     this.$http = axios.create({
-      baseURL,
+      baseURL: concatURL(baseURL, 'api/v4'),
       headers: {
         'Accept': 'application/json',
       },
@@ -94,7 +89,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
     window.location.href = buildURL(concatURL(this.baseURL, 'oauth/authorize'), {
       client_id: this.clientId,
       redirect_uri: window.location.href,
-      response_type: 'code',
+      response_type: 'token',
       state: this.state,
     })
   }
@@ -104,54 +99,26 @@ export default class GitlabV4 implements VssueAPI.Instance {
    *
    * @return A string for access token, `null` for no authorization code
    *
-   * @see https://docs.gitlab.com/ce/api/oauth2.html#supported-oauth2-flows
+   * @see https://docs.gitlab.com/ce/api/oauth2.html#implicit-grant-flow
    *
    * @remarks
-   * If the `code` and `state` exist in the query, and the `state` matches, remove them from query, and try to get the access token.
+   * If the `access_token` and `state` exist in the query, and the `state` matches, remove them from query, and return the access token.
    */
   async handleAuth (): Promise<VssueAPI.AccessToken> {
-    const query = parseQuery(window.location.search)
-    if (query.code) {
-      if (query.state !== this.state) {
-        return null
-      }
-      const code = query.code
-      delete query.code
-      delete query.state
-      const replaceURL = buildURL(getCleanURL(window.location.href), query) + window.location.hash
-      window.history.replaceState(null, '', replaceURL)
-      const accessToken = await this.getAccessToken({ code })
-      return accessToken
+    const hash = parseQuery(window.location.hash.slice(1))
+    if (!hash.access_token || hash.state !== this.state) {
+      return null
     }
-    return null
-  }
-
-  /**
-   * Get user access token via `code`
-   *
-   * @param options.code - The code from the query
-   *
-   * @return User access token
-   *
-   * @see https://docs.gitlab.com/ce/api/oauth2.html#2-requesting-access-token
-   */
-  async getAccessToken ({
-    code,
-  }: {
-    code: string
-  }): Promise<string> {
-    const originalURL = concatURL(this.baseURL, 'oauth/token')
-    const proxyURL = typeof this.proxy === 'function'
-      ? this.proxy(originalURL)
-      : this.proxy
-    const { data } = await this.$http.post(proxyURL, {
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      code,
-      grant_type: 'authorization_code',
-      redirect_uri: window.location.href,
-    })
-    return data.access_token
+    const accessToken = hash.access_token
+    delete hash.access_token
+    delete hash.token_type
+    delete hash.expires_in
+    delete hash.state
+    const hashString = buildQuery(hash)
+    const newHash = hashString ? `#${hashString}` : ''
+    const replaceURL = `${getCleanURL(window.location.href)}${window.location.search}${newHash}`
+    window.history.replaceState(null, '', replaceURL)
+    return accessToken
   }
 
   /**
@@ -166,7 +133,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
   }: {
     accessToken: VssueAPI.AccessToken
   }): Promise<VssueAPI.User> {
-    const { data } = await this.$http.get('api/v4/user', {
+    const { data } = await this.$http.get('user', {
       headers: { 'Authorization': `Bearer ${accessToken}` },
     })
     return normalizeUser(data)
@@ -205,7 +172,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
 
     if (issueId) {
       try {
-        const { data } = await this.$http.get(`api/v4/projects/${this._encodedRepo}/issues/${issueId}`, options)
+        const { data } = await this.$http.get(`projects/${this._encodedRepo}/issues/${issueId}`, options)
         return normalizeIssue(data)
       } catch (e) {
         if (e.response && e.response.status === 404) {
@@ -216,12 +183,12 @@ export default class GitlabV4 implements VssueAPI.Instance {
       }
     } else {
       options.params = {
-        labels: this.labels,
+        labels: this.labels.join(','),
         order_by: 'created_at',
         sort: 'asc',
         search: issueTitle,
       }
-      const { data } = await this.$http.get(`api/v4/projects/${this._encodedRepo}/issues`, options)
+      const { data } = await this.$http.get(`projects/${this._encodedRepo}/issues`, options)
       const issue = data.map(normalizeIssue).find(item => item.title === issueTitle)
       return issue || null
     }
@@ -247,10 +214,10 @@ export default class GitlabV4 implements VssueAPI.Instance {
     title: string
     content: string
   }): Promise<VssueAPI.Issue> {
-    const { data } = await this.$http.post(`api/v4/projects/${this._encodedRepo}/issues`, {
+    const { data } = await this.$http.post(`projects/${this._encodedRepo}/issues`, {
       title,
       description: content,
-      labels: this.labels,
+      labels: this.labels.join(','),
     }, {
       headers: { 'Authorization': `Bearer ${accessToken}` },
     })
@@ -258,7 +225,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
   }
 
   /**
-   * Get comments of this page according to the issue id or the issue title
+   * Get comments of this page according to the issue id
    *
    * @param options.accessToken - User access token
    * @param options.issueId - The id of issue
@@ -300,7 +267,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
         'Authorization': `Bearer ${accessToken}`,
       }
     }
-    const response = await this.$http.get(`api/v4/projects/${this._encodedRepo}/issues/${issueId}/notes`, options)
+    const response = await this.$http.get(`projects/${this._encodedRepo}/issues/${issueId}/notes`, options)
     const commentsRaw = response.data
 
     // gitlab api v4 should get parsed markdown content and reactions by other api
@@ -353,7 +320,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
     issueId: string | number
     content: string
   }): Promise<VssueAPI.Comment> {
-    const { data } = await this.$http.post(`api/v4/projects/${this._encodedRepo}/issues/${issueId}/notes`, {
+    const { data } = await this.$http.post(`projects/${this._encodedRepo}/issues/${issueId}/notes`, {
       body: content,
     }, {
       headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -384,7 +351,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
     commentId: string | number
     content: string
   }): Promise<VssueAPI.Comment> {
-    const { data } = await this.$http.put(`api/v4/projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}`, {
+    const { data } = await this.$http.put(`projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}`, {
       body: content,
     }, {
       headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -428,7 +395,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
     issueId: string | number
     commentId: string | number
   }): Promise<boolean> {
-    const { status } = await this.$http.delete(`api/v4/projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}`, {
+    const { status } = await this.$http.delete(`projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}`, {
       headers: { 'Authorization': `Bearer ${accessToken}` },
     })
     return status === 204
@@ -454,7 +421,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
     issueId: string | number
     commentId: string | number
   }): Promise<VssueAPI.Reactions> {
-    const { data } = await this.$http.get(`api/v4/projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}/award_emoji`, {
+    const { data } = await this.$http.get(`projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}/award_emoji`, {
       headers: { 'Authorization': `Bearer ${accessToken}` },
     })
     return normalizeReactions(data)
@@ -484,7 +451,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
     reaction: keyof VssueAPI.Reactions
   }): Promise<boolean> {
     try {
-      const response = await this.$http.post(`api/v4/projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}/award_emoji`, {
+      const response = await this.$http.post(`projects/${this._encodedRepo}/issues/${issueId}/notes/${commentId}/award_emoji`, {
         name: mapReactionName(reaction),
       }, {
         headers: {
@@ -527,7 +494,7 @@ export default class GitlabV4 implements VssueAPI.Instance {
         'Authorization': `Bearer ${accessToken}`,
       }
     }
-    const { data } = await this.$http.post(`api/v4/markdown`, {
+    const { data } = await this.$http.post(`markdown`, {
       text: contentRaw,
       gfm: true,
     }, options)

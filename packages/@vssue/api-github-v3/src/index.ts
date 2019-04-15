@@ -47,6 +47,10 @@ export default class GithubV3 implements VssueAPI.Instance {
     state,
     proxy,
   }: VssueAPI.Options) {
+    /* istanbul ignore if */
+    if (typeof clientSecret === 'undefined' || typeof proxy === 'undefined') {
+      throw new Error('clientSecret and proxy is required for GitHub V3')
+    }
     this.baseURL = baseURL
     this.owner = owner
     this.repo = repo
@@ -65,8 +69,8 @@ export default class GithubV3 implements VssueAPI.Instance {
     })
 
     this.$http.interceptors.response.use(response => {
-      if (response.data.error) {
-        return Promise.reject(response.data.error_description)
+      if (response.data && response.data.error) {
+        return Promise.reject(new Error(response.data.error_description))
       }
       return response
     })
@@ -237,6 +241,7 @@ export default class GithubV3 implements VssueAPI.Instance {
         labels: this.labels.join(','),
         sort: 'created',
         direction: 'asc',
+        state: 'all',
         // to avoid caching
         timestamp: Date.now(),
       }
@@ -277,7 +282,7 @@ export default class GithubV3 implements VssueAPI.Instance {
   }
 
   /**
-   * Get comments of this page according to the issue id or the issue title
+   * Get comments of this page according to the issue id
    *
    * @param options.accessToken - User access token
    * @param options.issueId - The id of issue
@@ -349,12 +354,14 @@ export default class GithubV3 implements VssueAPI.Instance {
     // it's annoying that have to get the page and per_page from the `Link` header
     const linkHeader = commentsRes.headers['link'] || null
 
+    /* istanbul ignore next */
     const thisPage = /rel="next"/.test(linkHeader)
       ? Number(linkHeader.replace(/^.*[^_]page=(\d*).*rel="next".*$/, '$1')) - 1
       : /rel="prev"/.test(linkHeader)
         ? Number(linkHeader.replace(/^.*[^_]page=(\d*).*rel="prev".*$/, '$1')) + 1
         : 1
 
+    /* istanbul ignore next */
     const thisPerPage = linkHeader ? Number(linkHeader.replace(/^.*per_page=(\d*).*$/, '$1')) : perPage
 
     return {

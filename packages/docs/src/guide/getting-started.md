@@ -11,7 +11,7 @@ After this step, you will get `client id` and `client secret` of your OAuth App,
 - `owner`: the account / group that owns the repository
 - `repo`: the name of the repository to store comments
 - `clientId`: the `client id` of your oauth app
-- `clientSecret`: the `client secret` of your oauth app
+- `clientSecret`: the `client secret` of your oauth app (only required for some of the platforms)
 
 ## In Browser
 
@@ -59,7 +59,7 @@ Vssue can be used directly via a `<script>` tag in browser. As Vssue depends on 
             owner: 'OWNER_OF_REPO',
             repo: 'NAME_OF_REPO',
             clientId: 'YOUR_CLIENT_ID',
-            clientSecret: 'YOUR_CLIENT_SECRET',
+            clientSecret: 'YOUR_CLIENT_SECRET', // only required for some of the platforms
           },
         }
       })
@@ -78,7 +78,7 @@ Vssue can be used directly via a `<script>` tag in browser. As Vssue depends on 
           owner: 'OWNER_OF_REPO',
           repo: 'NAME_OF_REPO',
           clientId: 'YOUR_CLIENT_ID',
-          clientSecret: 'YOUR_CLIENT_SECRET',
+          clientSecret: 'YOUR_CLIENT_SECRET', // only required for some of the platforms
         },
       },
 
@@ -129,7 +129,7 @@ npm install @vssue/api-bitbucket-v2
 
 By `import Vssue from 'vssue'` you will get a Vue plugin. Call `Vue.use()` to use it and set the options. A global component named `Vssue` will be registered.
 
-> For the details of options, see [Options Reference - Vssue Options](../options/index.md#vssue-options)
+> For the details of options, see [Options Reference - Vssue Options](../options/README.md#vssue-options)
 
 ```js
 // import vue
@@ -149,13 +149,13 @@ Vue.use(Vssue, {
   owner: 'OWNER_OF_REPO',
   repo: 'NAME_OF_REPO',
   clientId: 'YOUR_CLIENT_ID',
-  clientSecret: 'YOUR_CLIENT_SECRET',
+  clientSecret: 'YOUR_CLIENT_SECRET', // only required for some of the platforms
 })
 ```
 
 Then you can use Vssue Component in your [SFC](https://cn.vuejs.org/v2/guide/single-file-components.html):
 
-> For the details of component props, see [Options Reference - Component Props](../options/index.md#component-props)
+> For the details of component props, see [Options Reference - Component Props](../options/README.md#component-props)
 
 ```vue
 <template>
@@ -180,7 +180,7 @@ export default {
         // owner: 'OWNER_OF_REPO',
         // repo: 'NAME_OF_REPO',
         // clientId: 'YOUR_CLIENT_ID',
-        // clientSecret: 'YOUR_CLIENT_SECRET',
+        // clientSecret: 'YOUR_CLIENT_SECRET', // only required for some of the platforms
       },
     }
   },
@@ -197,7 +197,7 @@ When you use Vssue as a Plugin by `Vue.use()`, this component has already been r
 
 If you don't want to register it globally, you can import it this way.
 
-Notice that if you only import the Vssue component, there is no "global" options set by `Vue.use()`, and you have to set all required Vssue Options via the prop `options`. See [Component Props - options](../options/index.md#options).
+Notice that if you only import the Vssue component, there is no "global" options set by `Vue.use()`, and you have to set all required Vssue Options via the prop `options`. See [Component Props - options](../options/README.md#options).
 :::
 
 ```vue
@@ -228,7 +228,7 @@ export default {
         owner: 'OWNER_OF_REPO',
         repo: 'NAME_OF_REPO',
         clientId: 'YOUR_CLIENT_ID',
-        clientSecret: 'YOUR_CLIENT_SECRET',
+        clientSecret: 'YOUR_CLIENT_SECRET', // only required for some of the platforms
       },
     }
   },
@@ -240,15 +240,12 @@ export default {
 
 Similar to Vue, Vssue also provide different builds for different usage.
 
-> See [different builds of Vue](https://vuejs.org/v2/guide/installation.html#Explanation-of-Different-Builds)
-
 These files are located in the [dist](https://github.com/meteorlxy/vssue/tree/master/packages/vssue/dist) folder:
 
-- `vssue.js`: the [ES Module](http://exploringjs.com/es6/ch_modules.html) build
-- `vssue.github.min.js`: minified [UMD](https://github.com/umdjs/umd) build for GitHub API V3, to be used directly in the browser via a `<script>` tag
-- `vssue.bitbucket.min.js`: minified [UMD](https://github.com/umdjs/umd) build for Bitbucket API V2, to be used directly in the browser via a `<script>` tag
-- `vssue.gitlab.min.js`: minified [UMD](https://github.com/umdjs/umd) build for GitLab API V4, to be used directly in the browser via a `<script>` tag
+| Filename                         | Type      | Minified | Polyfills | Usage                                  |
+|----------------------------------|-----------|----------|-----------|----------------------------------------|
+| vssue.js                         | ES Module | false    | false     | with bundler                           |
+| vssue.[platform].min.js          | UMD       | true     | false     | in modern browser via a `<script>` tag |
+| vssue.[platform].polyfill.min.js | UMD       | true     | true      | in old browser via a `<script>` tag    |
 
-::: tip
-From v0.4.0, we do not provide [Commonjs](http://wiki.commonjs.org/wiki/Modules/1.1) build anymore. The ESM build is renamed to `vssue.js` as the `main` file in `package.json`.
-:::
+> See [different builds of Vue](https://vuejs.org/v2/guide/installation.html#Explanation-of-Different-Builds)

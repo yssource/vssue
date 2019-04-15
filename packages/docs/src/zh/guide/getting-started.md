@@ -11,7 +11,7 @@ Vssue 支持通过 Github、Gitlab 或者 Bitbucket 的 Issue 系统来为你的
 - `owner`: 对应 repository 的拥有者帐号或者团队
 - `repo`: 用来存储评论的 repository
 - `clientId`: OAuth App 的 `client id`
-- `clientSecret`: OAuth App 的  `client secret`
+- `clientSecret`: OAuth App 的  `client secret` （只有在使用某些平台时需要）
 
 ## 在浏览器中使用
 
@@ -59,7 +59,7 @@ Vssue 可以在浏览器中通过 `<script>` 标签直接使用。由于 Vssue �
             owner: 'OWNER_OF_REPO',
             repo: 'NAME_OF_REPO',
             clientId: 'YOUR_CLIENT_ID',
-            clientSecret: 'YOUR_CLIENT_SECRET',
+            clientSecret: 'YOUR_CLIENT_SECRET', // 只有在使用某些平台时需要
           },
         }
       })
@@ -78,7 +78,7 @@ Vssue 可以在浏览器中通过 `<script>` 标签直接使用。由于 Vssue �
           owner: 'OWNER_OF_REPO',
           repo: 'NAME_OF_REPO',
           clientId: 'YOUR_CLIENT_ID',
-          clientSecret: 'YOUR_CLIENT_SECRET',
+          clientSecret: 'YOUR_CLIENT_SECRET', // 只有在使用某些平台时需要
         },
       },
 
@@ -129,7 +129,7 @@ npm install @vssue/api-bitbucket-v2
 
 通过 `import Vssue from 'vssue'` 你会得到一个 Vue 插件。调用 `Vue.use()` 来使用它并进行配置。这会注册一个名称为 `Vssue` 的全局组件。
 
-> 关于配置的详情，可以查看 [配置参考 - Vssue 配置](../options/index.md#vssue-配置)
+> 关于配置的详情，可以查看 [配置参考 - Vssue 配置](../options/README.md#vssue-配置)
 
 ```js
 // 引入 vue
@@ -149,13 +149,13 @@ Vue.use(Vssue, {
   owner: 'OWNER_OF_REPO',
   repo: 'NAME_OF_REPO',
   clientId: 'YOUR_CLIENT_ID',
-  clientSecret: 'YOUR_CLIENT_SECRET',
+  clientSecret: 'YOUR_CLIENT_SECRET', // 只有在使用某些平台时需要
 })
 ```
 
 然后你就可以在 [SFC](https://cn.vuejs.org/v2/guide/single-file-components.html) 中使用 Vssue 组件了：
 
-> 关于组件 Props 的详情，可以查看 [配置参考 - 组件 Props](../options/index.md#组件-props)
+> 关于组件 Props 的详情，可以查看 [配置参考 - 组件 Props](../options/README.md#组件-props)
 
 ```vue
 <template>
@@ -180,7 +180,7 @@ export default {
         // owner: 'OWNER_OF_REPO',
         // repo: 'NAME_OF_REPO',
         // clientId: 'YOUR_CLIENT_ID',
-        // clientSecret: 'YOUR_CLIENT_SECRET',
+        // clientSecret: 'YOUR_CLIENT_SECRET', // 只有在使用某些平台时需要
       },
     }
   },
@@ -197,7 +197,7 @@ export default {
 
 如果你不想把它注册为全局组件，你可以通过这种方式引入它。
 
-需要注意的是，如果你只作为组件引入 Vssue，就没有通过 `Vue.use()` 设置的“全局”配置了，你必须通过 Prop `options` 传入所有必需的 Vssue 配置。参考 [组件 Props - options](../options/index.md#options)。
+需要注意的是，如果你只作为组件引入 Vssue，就没有通过 `Vue.use()` 设置的“全局”配置了，你必须通过 Prop `options` 传入所有必需的 Vssue 配置。参考 [组件 Props - options](../options/README.md#options)。
 :::
 
 ```vue
@@ -228,7 +228,7 @@ export default {
         owner: 'OWNER_OF_REPO',
         repo: 'NAME_OF_REPO',
         clientId: 'YOUR_CLIENT_ID',
-        clientSecret: 'YOUR_CLIENT_SECRET',
+        clientSecret: 'YOUR_CLIENT_SECRET', // 只有在使用某些平台时需要
       },
     }
   },
@@ -240,15 +240,12 @@ export default {
 
 和 Vue 类似，Vssue 也提供了不同的构建版本以供使用。
 
-> 参考 [Vue 的不同构建版本](https://cn.vuejs.org/v2/guide/installation.html#%E5%AF%B9%E4%B8%8D%E5%90%8C%E6%9E%84%E5%BB%BA%E7%89%88%E6%9C%AC%E7%9A%84%E8%A7%A3%E9%87%8A)
-
 这些文件放置在 [dist](https://github.com/meteorlxy/vssue/tree/master/packages/vssue/dist) 文件夹中：
 
-- `vssue.js`：[ES Module](http://exploringjs.com/es6/ch_modules.html) 版本
-- `vssue.github.min.js`：使用 GitHub API V3 的最小化 [UMD](https://github.com/umdjs/umd) 版本。通过 `<script>` 标签直接用在浏览器中。
-- `vssue.bitbucket.min.js`：使用 Bitbucket API V2 的最小化 [UMD](https://github.com/umdjs/umd) 版本。通过 `<script>` 标签直接用在浏览器中。
-- `vssue.gitlab.min.js`：使用 GitLab API V4 的最小化 [UMD](https://github.com/umdjs/umd) 版本。通过 `<script>` 标签直接用在浏览器中。
+| 文件名                            | 类型      | Minified | Polyfills | 用途                                  |
+|----------------------------------|-----------|----------|-----------|----------------------------------------|
+| vssue.js                         | ES Module | false    | false     | 使用构建工具                            |
+| vssue.[platform].min.js          | UMD       | true     | false     | 通过现代浏览器的 `<script>` 标签引入     |
+| vssue.[platform].polyfill.min.js | UMD       | true     | true      | 通过旧版浏览器的 `<script>` 标签引入     |
 
-::: tip
-从 v0.4.0 开始，我们不再提供 [Commonjs](http://wiki.commonjs.org/wiki/Modules/1.1) 版本。ESM 版本重命名为 `vssue.js`，并作为 `package.json` 的 `main` 文件。
-:::
+> 参考 [Vue 的不同构建版本](https://cn.vuejs.org/v2/guide/installation.html#%E5%AF%B9%E4%B8%8D%E5%90%8C%E6%9E%84%E5%BB%BA%E7%89%88%E6%9C%AC%E7%9A%84%E8%A7%A3%E9%87%8A)
